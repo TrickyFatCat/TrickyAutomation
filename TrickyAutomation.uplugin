@@ -23,7 +23,7 @@
 	],
 	"Plugins": [
 		{
-			"Name": "AutomationUtils",
+			"Name": "EditorScriptingUtilities",
 			"Enabled": true
 		}
 	]
