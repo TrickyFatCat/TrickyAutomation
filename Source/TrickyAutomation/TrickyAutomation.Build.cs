@@ -41,7 +41,8 @@ public class TrickyAutomation : ModuleRules
 				"SlateCore",
 				"UMG",
 				"Blutility",
-				"EditorScriptingUtilities"
+				"EditorScriptingUtilities",
+				"UMGEditor"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);
