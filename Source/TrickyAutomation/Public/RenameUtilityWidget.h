@@ -27,10 +27,12 @@ protected:
 	UPROPERTY(meta=(BindWidget))
 	UDetailsView* DetailsView_BatchRename = nullptr;
 
+	const FString RenameMessage = "Renaming assets...";
+
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="BatchRename")
 	FString NewName = "";
-	
+
 	UFUNCTION(CallInEditor, BlueprintCallable)
 	void BatchRename();
 };

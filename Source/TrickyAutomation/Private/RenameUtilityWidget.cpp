@@ -27,7 +27,6 @@ void URenameUtilityWidget::NativePreConstruct()
 		DetailsView_BatchRename->PropertiesToShow.AddUnique("NewName");
 		DetailsView_BatchRename->bAllowFiltering = false;
 	}
-
 }
 
 void URenameUtilityWidget::BatchRename()
@@ -40,16 +39,25 @@ void URenameUtilityWidget::BatchRename()
 		return;
 	}
 
-	if (NewName == "")
+	if (NewName == "" || NewName.Contains(" "))
 	{
 		// TODO Print error
 		return;
 	}
 
 	uint32 Counter = 0;
+	FScopedSlowTask RenameSelectedAssets(SelectedAssets.Num(),
+	                                     FText::FromString(RenameMessage));
+	RenameSelectedAssets.MakeDialog();
 
 	for (UObject* Asset : SelectedAssets)
 	{
+		const FString UpdatedMessage = RenameMessage + FString::Printf(
+			TEXT(" %d/%d"),
+			SelectedAssets.IndexOfByKey(Asset),
+			SelectedAssets.Num());
+		RenameSelectedAssets.EnterProgressFrame(1, FText::FromString(UpdatedMessage));
+
 		if (!ensure(Asset))
 		{
 			// TODO Print and log error
@@ -57,7 +65,7 @@ void URenameUtilityWidget::BatchRename()
 		}
 
 		Counter++;
-		const FString FinalName = NewName + FString::Printf(TEXT("_%02d"), Counter);
+		const FString FinalName = NewName + FString::Printf(TEXT("_%d"), Counter);
 		UEditorUtilityLibrary::RenameAsset(Asset, FinalName);
 
 		// TODO Add prefix
