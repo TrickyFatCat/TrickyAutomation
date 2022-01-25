@@ -6,6 +6,7 @@
 #include "EditorUtilityLibrary.h"
 #include "EditorAssetLibrary.h"
 #include "Components/Button.h"
+#include "Components/ComboBoxString.h"
 #include "Misc/FileHelper.h"
 #include "Misc/Paths.h"
 #include "Misc/ScopedSlowTask.h"
@@ -31,16 +32,48 @@ void URenameUtilityWidget::NativePreConstruct()
 
 	if (Button_AddPrefix)
 	{
-		Button_AddPrefix->OnClicked.AddUniqueDynamic(this, &URenameUtilityWidget::CheckAndAddPrefix);
+		Button_AddPrefix->OnClicked.AddUniqueDynamic(this, &URenameUtilityWidget::AddPrefix);
 	}
 
 	if (DetailsView_PrefixProperties)
 	{
 		DetailsView_PrefixProperties->SetObject(this);
 		DetailsView_PrefixProperties->CategoriesToShow.AddUnique("AddPrefix");
+		DetailsView_PrefixProperties->CategoriesToShow.AddUnique("None");
 		DetailsView_PrefixProperties->PropertiesToShow.AddUnique("PrefixesMap");
-		DetailsView_PrefixProperties->PropertiesToShow.AddUnique("bCheckAllAssets");
 		DetailsView_PrefixProperties->bAllowFiltering = false;
+	}
+
+	if (Button_AddSuffix)
+	{
+		Button_AddSuffix->OnClicked.AddUniqueDynamic(this, &URenameUtilityWidget::AddSuffix);
+	}
+
+	if (ComboBox_Suffixes)
+	{
+		ComboBox_Suffixes->AddOption("NONE");
+
+		if (SuffixesArray.Num() > 0)
+		{
+			ComboBox_Suffixes->ClearOptions();
+			ComboBox_Suffixes->AddOption("NONE");
+
+			for (int32 i = 0; i < SuffixesArray.Num(); i++)
+			{
+				ComboBox_Suffixes->AddOption(SuffixesArray[i]);
+			}
+		}
+
+		ComboBox_Suffixes->SetSelectedIndex(0);
+	}
+
+	if (DetailsView_SuffixProperties)
+	{
+		DetailsView_SuffixProperties->SetObject(this);
+		DetailsView_SuffixProperties->CategoriesToShow.AddUnique("AddSuffix");
+		DetailsView_PrefixProperties->CategoriesToShow.AddUnique("None");
+		DetailsView_SuffixProperties->PropertiesToShow.AddUnique("SuffixesArray");
+		DetailsView_SuffixProperties->bAllowFiltering = false;
 	}
 }
 
@@ -128,15 +161,9 @@ void URenameUtilityWidget::BatchRename()
 	NewName = "";
 }
 
-void URenameUtilityWidget::CheckAndAddPrefix()
+void URenameUtilityWidget::AddPrefix()
 {
 	if (PrefixesMapIsEmpty()) return;
-
-	if (bCheckAllAssets)
-	{
-		// TODO Add check all assets in the project
-		return;
-	}
 
 	TArray<UObject*> SelectedAssets = UEditorUtilityLibrary::GetSelectedAssets();
 
@@ -173,7 +200,7 @@ void URenameUtilityWidget::CheckAndAddPrefix()
 
 		FString Prefix = PrefixesMap[AssetClass];
 		GeneratePrefix(Prefix);
-		
+
 		const FString Name = Asset->GetName();
 
 		if (!Name.StartsWith(Prefix, ESearchCase::CaseSensitive))
@@ -209,6 +236,42 @@ void URenameUtilityWidget::GeneratePrefix(FString& Prefix)
 	if (Prefix.Contains("_")) return;
 
 	Prefix += "_";
+}
+
+void URenameUtilityWidget::AddSuffix()
+{
+	if (ComboBox_Suffixes->GetSelectedIndex() == 0 || SuffixesArray.Num() == 0) return;
+
+	TArray<UObject*> SelectedAssets = UEditorUtilityLibrary::GetSelectedAssets();
+
+	for (UObject* Asset : SelectedAssets)
+	{
+		if (!ensure(Asset)) continue;
+
+		const FString& SelectedOption = ComboBox_Suffixes->GetSelectedOption();
+		const FString Suffix = SelectedOption.Contains("_") ? SelectedOption : "_" + SelectedOption;
+		const FString Name = Asset->GetName();
+		FString UpdatedName = Name;
+
+		if (Name.EndsWith(Suffix)) continue;
+
+		for (int i = 0; i < SuffixesArray.Num(); i++)
+		{
+			if (Name.EndsWith(SuffixesArray[i]) && !Name.EndsWith(Suffix))
+			{
+				const FString OldSuffix = SuffixesArray[i].Contains("_") ? SuffixesArray[i] : "_" + SuffixesArray[i];
+				UpdatedName = UpdatedName.Replace(*OldSuffix, *Suffix, ESearchCase::CaseSensitive);
+				break;
+			}
+		}
+
+		if (!UpdatedName.EndsWith(Suffix))
+		{
+			UpdatedName += Suffix;
+		}
+		
+		UEditorUtilityLibrary::RenameAsset(Asset, UpdatedName);
+	}
 }
 
 void URenameUtilityWidget::GenerateFileName(FString& Name)

@@ -28,6 +28,7 @@
 class UButton;
 class USinglePropertyView;
 class UDetailsView;
+class UComboBoxString;
 
 DECLARE_LOG_CATEGORY_CLASS(LogRenameUtility, Display, All)
 
@@ -104,17 +105,37 @@ protected:
 		{UStruct::StaticClass(), "F"}
 	};
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="AddPrefix")
-	bool bCheckAllAssets = false;
-
 	UFUNCTION(CallInEditor)
-	void CheckAndAddPrefix();
+	void AddPrefix();
 
 private:
 	const FString AddPrefixMessage = "Adding prefixes...";
 	bool PrefixesMapIsEmpty() const;
 	static void GeneratePrefix(FString& Prefix);
 
+#pragma endregion
+
+#pragma region AddSuffixes
+
+protected:
+	UPROPERTY(meta=(BindWidget))
+	UButton* Button_AddSuffix = nullptr;
+
+	UPROPERTY(meta=(BindWidget))
+	UComboBoxString* ComboBox_Suffixes = nullptr;
+
+	UPROPERTY(meta=(BindWidget))
+	UDetailsView* DetailsView_SuffixProperties= nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="AddSuffix")
+	TArray<FString> SuffixesArray = {
+		"N",
+		"D",
+		"R"
+	};
+
+	UFUNCTION(CallInEditor)
+	void AddSuffix();
 #pragma endregion 
 
 private:
