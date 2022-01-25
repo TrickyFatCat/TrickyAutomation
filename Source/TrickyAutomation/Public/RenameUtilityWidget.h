@@ -39,5 +39,7 @@ protected:
 	void BatchRename();
 
 private:
+	static void GenerateFileName(FString& Name);
 	static void SaveToLogFile(const FString& Message, const FString& FileName);
+	static void GetDate(FString& Date);
 };
