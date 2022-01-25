@@ -42,7 +42,9 @@ public class TrickyAutomation : ModuleRules
 				"UMG",
 				"Blutility",
 				"EditorScriptingUtilities",
-				"UMGEditor"
+				"UMGEditor",
+				"AIModule",
+				"PhysicsCore"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);
