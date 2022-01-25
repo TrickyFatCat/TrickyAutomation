@@ -52,14 +52,17 @@ protected:
 	UPROPERTY(meta=(BindWidget))
 	USinglePropertyView* PropertyView_NewName = nullptr;
 
-	const FString RenameMessage = "Renaming assets...";
+	UPROPERTY(meta=(BindWidget))
+	UComboBoxString* ComboBox_SuffixRename = nullptr;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="BatchRename")
 	FString NewName = "";
 
 	UFUNCTION(CallInEditor)
 	void BatchRename();
-
+	
+private:
+	const FString RenameMessage = "Renaming assets...";
 #pragma endregion
 
 #pragma region AddPrefixes
@@ -68,10 +71,7 @@ protected:
 	UPROPERTY(meta=(BindWidget))
 	UButton* Button_AddPrefix = nullptr;
 
-	UPROPERTY(meta=(BindWidget))
-	UDetailsView* DetailsView_PrefixProperties = nullptr;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="AddPrefix")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category="AddPrefix")
 	TMap<UClass*, FString> PrefixesMap = {
 		{UBlueprint::StaticClass(), "BP"},
 		{UStaticMesh::StaticClass(), "SM"},
@@ -124,10 +124,7 @@ protected:
 	UPROPERTY(meta=(BindWidget))
 	UComboBoxString* ComboBox_Suffixes = nullptr;
 
-	UPROPERTY(meta=(BindWidget))
-	UDetailsView* DetailsView_SuffixProperties= nullptr;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="AddSuffix")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="AddSuffix")
 	TArray<FString> SuffixesArray = {
 		"N",
 		"D",
@@ -136,6 +133,10 @@ protected:
 
 	UFUNCTION(CallInEditor)
 	void AddSuffix();
+
+private:
+	const FString AddSuffixMessage = "Adding suffixes...";
+	
 #pragma endregion 
 
 private:

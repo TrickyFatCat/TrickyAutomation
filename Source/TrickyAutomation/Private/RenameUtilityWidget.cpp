@@ -19,6 +19,24 @@ void URenameUtilityWidget::NativePreConstruct()
 {
 	Super::NativePreConstruct();
 
+	auto FillCombobox = [&](UComboBoxString* ComboBox)
+	{
+		ComboBox->AddOption("NONE");
+
+		if (SuffixesArray.Num() > 0)
+		{
+			ComboBox->ClearOptions();
+			ComboBox->AddOption("NONE");
+
+			for (int32 i = 0; i < SuffixesArray.Num(); i++)
+			{
+				ComboBox->AddOption(SuffixesArray[i]);
+			}
+		}
+
+		ComboBox->SetSelectedIndex(0);
+	};
+
 	if (Button_RenameAssets)
 	{
 		Button_RenameAssets->OnClicked.AddUniqueDynamic(this, &URenameUtilityWidget::BatchRename);
@@ -30,18 +48,14 @@ void URenameUtilityWidget::NativePreConstruct()
 		PropertyView_NewName->SetPropertyName("NewName");
 	}
 
+	if (ComboBox_SuffixRename)
+	{
+		FillCombobox(ComboBox_SuffixRename);
+	}
+
 	if (Button_AddPrefix)
 	{
 		Button_AddPrefix->OnClicked.AddUniqueDynamic(this, &URenameUtilityWidget::AddPrefix);
-	}
-
-	if (DetailsView_PrefixProperties)
-	{
-		DetailsView_PrefixProperties->SetObject(this);
-		DetailsView_PrefixProperties->CategoriesToShow.AddUnique("AddPrefix");
-		DetailsView_PrefixProperties->CategoriesToShow.AddUnique("None");
-		DetailsView_PrefixProperties->PropertiesToShow.AddUnique("PrefixesMap");
-		DetailsView_PrefixProperties->bAllowFiltering = false;
 	}
 
 	if (Button_AddSuffix)
@@ -51,29 +65,7 @@ void URenameUtilityWidget::NativePreConstruct()
 
 	if (ComboBox_Suffixes)
 	{
-		ComboBox_Suffixes->AddOption("NONE");
-
-		if (SuffixesArray.Num() > 0)
-		{
-			ComboBox_Suffixes->ClearOptions();
-			ComboBox_Suffixes->AddOption("NONE");
-
-			for (int32 i = 0; i < SuffixesArray.Num(); i++)
-			{
-				ComboBox_Suffixes->AddOption(SuffixesArray[i]);
-			}
-		}
-
-		ComboBox_Suffixes->SetSelectedIndex(0);
-	}
-
-	if (DetailsView_SuffixProperties)
-	{
-		DetailsView_SuffixProperties->SetObject(this);
-		DetailsView_SuffixProperties->CategoriesToShow.AddUnique("AddSuffix");
-		DetailsView_PrefixProperties->CategoriesToShow.AddUnique("None");
-		DetailsView_SuffixProperties->PropertiesToShow.AddUnique("SuffixesArray");
-		DetailsView_SuffixProperties->bAllowFiltering = false;
+		FillCombobox(ComboBox_Suffixes);
 	}
 }
 
@@ -99,10 +91,10 @@ void URenameUtilityWidget::BatchRename()
 	                                     FText::FromString(RenameMessage));
 	RenameSelectedAssets.MakeDialog();
 
-	UE_LOG(LogRenameUtility, Display, TEXT("Create batch rename log file."));
 	FString FileName = "BatchRename";
 	GenerateFileName(FileName);
 	SaveToLogFile("Start batch renaming\n", FileName);
+	UE_LOG(LogRenameUtility, Display, TEXT("Create batch rename log file %s."), *FileName);
 
 	for (UObject* Asset : SelectedAssets)
 	{
@@ -144,6 +136,13 @@ void URenameUtilityWidget::BatchRename()
 			}
 		}
 
+		if (ComboBox_SuffixRename->GetSelectedIndex() != 0)
+		{
+			const FString& SelectedOption = ComboBox_SuffixRename->GetSelectedOption();
+			const FString Suffix = SelectedOption.Contains("_") ? SelectedOption : "_" + SelectedOption;
+			FinalName.Append(Suffix);
+		}
+
 		UEditorUtilityLibrary::RenameAsset(Asset, FinalName);
 
 		FString LogMessage = FString::Printf(
@@ -167,7 +166,6 @@ void URenameUtilityWidget::AddPrefix()
 
 	TArray<UObject*> SelectedAssets = UEditorUtilityLibrary::GetSelectedAssets();
 
-	UE_LOG(LogRenameUtility, Display, TEXT("Create add prefix log file."));
 	FScopedSlowTask AddPrefixProgress(SelectedAssets.Num(),
 	                                  FText::FromString(AddPrefixMessage));
 	AddPrefixProgress.MakeDialog();
@@ -175,6 +173,7 @@ void URenameUtilityWidget::AddPrefix()
 	FString FileName = "AddPrefix";
 	GenerateFileName(FileName);
 	SaveToLogFile("Start adding prefixes\n", FileName);
+	UE_LOG(LogRenameUtility, Display, TEXT("Create add prefix log file %s."), *FileName);
 
 	for (UObject* Asset : SelectedAssets)
 	{
@@ -243,15 +242,39 @@ void URenameUtilityWidget::AddSuffix()
 	if (ComboBox_Suffixes->GetSelectedIndex() == 0 || SuffixesArray.Num() == 0) return;
 
 	TArray<UObject*> SelectedAssets = UEditorUtilityLibrary::GetSelectedAssets();
+	FScopedSlowTask AddSuffixProgress(SelectedAssets.Num(),
+	                                  FText::FromString(AddSuffixMessage));
+	AddSuffixProgress.MakeDialog();
+
+	FString FileName = "AddSuffix";
+	GenerateFileName(FileName);
+	SaveToLogFile("Start adding suffixes\n", FileName);
+	UE_LOG(LogRenameUtility, Display, TEXT("Create add suffix log file %s."), *FileName);
 
 	for (UObject* Asset : SelectedAssets)
 	{
+		const FString UpdatedMessage = AddSuffixMessage + FString::Printf(
+			TEXT(" %d/%d"),
+			SelectedAssets.IndexOfByKey(Asset),
+			SelectedAssets.Num());
+		AddSuffixProgress.EnterProgressFrame(1, FText::FromString(UpdatedMessage));
+
 		if (!ensure(Asset)) continue;
 
 		const FString& SelectedOption = ComboBox_Suffixes->GetSelectedOption();
 		const FString Suffix = SelectedOption.Contains("_") ? SelectedOption : "_" + SelectedOption;
 		const FString Name = Asset->GetName();
 		FString UpdatedName = Name;
+		FString LogMessage = "";
+		auto GenerateMessage = [&]()
+		{
+			LogMessage = FString::Printf(
+				TEXT("Add suffix %s to %s. New name %s. %s"),
+				*Suffix,
+				*Name,
+				*UpdatedName,
+				*Asset->GetPathName());
+		};
 
 		if (Name.EndsWith(Suffix)) continue;
 
@@ -261,6 +284,9 @@ void URenameUtilityWidget::AddSuffix()
 			{
 				const FString OldSuffix = SuffixesArray[i].Contains("_") ? SuffixesArray[i] : "_" + SuffixesArray[i];
 				UpdatedName = UpdatedName.Replace(*OldSuffix, *Suffix, ESearchCase::CaseSensitive);
+
+				SaveToLogFile(FString::Printf(TEXT("Change suffix %s to %s"), *OldSuffix, *Suffix), FileName);
+				GenerateMessage();
 				break;
 			}
 		}
@@ -268,10 +294,15 @@ void URenameUtilityWidget::AddSuffix()
 		if (!UpdatedName.EndsWith(Suffix))
 		{
 			UpdatedName += Suffix;
+			GenerateMessage();
 		}
-		
+
 		UEditorUtilityLibrary::RenameAsset(Asset, UpdatedName);
+		SaveToLogFile(LogMessage, FileName);
 	}
+
+	SaveToLogFile("", FileName);
+	SaveToLogFile("Finish adding suffixes\n", FileName);
 }
 
 void URenameUtilityWidget::GenerateFileName(FString& Name)
