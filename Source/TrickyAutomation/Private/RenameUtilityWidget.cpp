@@ -18,7 +18,7 @@ void URenameUtilityWidget::NativePreConstruct()
 
 	if (Button_RenameAssets)
 	{
-		Button_RenameAssets->OnClicked.AddDynamic(this, &URenameUtilityWidget::BatchRename);
+		Button_RenameAssets->OnClicked.AddUniqueDynamic(this, &URenameUtilityWidget::BatchRename);
 	}
 
 	if (DetailsView_BatchRename)
@@ -49,6 +49,10 @@ void URenameUtilityWidget::BatchRename()
 	FScopedSlowTask RenameSelectedAssets(SelectedAssets.Num(),
 	                                     FText::FromString(RenameMessage));
 	RenameSelectedAssets.MakeDialog();
+	UE_LOG(LogRenameUtility, Display, TEXT("Create batch rename log file."));
+	const FString FileName = "BatchRename_YYMMDD_HHMMSS";
+	// TODO Add date and time to a log name
+	SaveToLogFile("Start batch renaming\n", FileName);
 
 	for (UObject* Asset : SelectedAssets)
 	{
@@ -58,19 +62,41 @@ void URenameUtilityWidget::BatchRename()
 			SelectedAssets.Num());
 		RenameSelectedAssets.EnterProgressFrame(1, FText::FromString(UpdatedMessage));
 
-		if (!ensure(Asset))
+		if (ensure(Asset))
 		{
-			// TODO Print and log error
-			continue;
+			const FString OldName = Asset->GetName();
+			Counter++;
+			const FString FinalName = NewName + FString::Printf(TEXT("_%d"), Counter);
+			UEditorUtilityLibrary::RenameAsset(Asset, FinalName);
+
+			// TODO Add prefix
+			FString LogMessage = FString::Printf(
+				TEXT("Rename %s to %s in %s"),
+				*OldName,
+				*FinalName,
+				*Asset->GetPathName());
+
+			UE_LOG(LogRenameUtility, Warning, TEXT("%s"), *LogMessage);
+			SaveToLogFile(LogMessage, FileName);
 		}
-
-		Counter++;
-		const FString FinalName = NewName + FString::Printf(TEXT("_%d"), Counter);
-		UEditorUtilityLibrary::RenameAsset(Asset, FinalName);
-
-		// TODO Add prefix
-		// TODO Log changes
 	}
 
+	SaveToLogFile("", FileName);
+	SaveToLogFile("Finish batch renaming", FileName);
 	NewName = "";
+}
+
+void URenameUtilityWidget::SaveToLogFile(const FString& Message, const FString& FileName)
+{
+	const FString LogMessage = Message == "" ? FString("\n") : FString::Printf(TEXT("YYYY-MM-DD HH:MM:SS | %s\n"), *Message);
+	
+	// TODO Add date and time to a message
+	// TODO Add message type SUCCESS/ERROR/WARNING
+	const FString LogFileName = "Log_" + FileName + ".txt";
+	const FString FilePath = FPaths::ProjectDir() + "Saved/Logs/TrickyAutomation/" + LogFileName;
+	FFileHelper::SaveStringToFile(LogMessage,
+	                              *FilePath,
+	                              FFileHelper::EEncodingOptions::AutoDetect,
+	                              &IFileManager::Get(),
+	                              FILEWRITE_Append);
 }

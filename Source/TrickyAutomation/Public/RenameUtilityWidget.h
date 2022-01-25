@@ -9,6 +9,8 @@
 class UButton;
 class UDetailsView;
 
+DECLARE_LOG_CATEGORY_CLASS(LogRenameUtility, Display, All)
+
 /**
  * 
  */
@@ -35,4 +37,7 @@ protected:
 
 	UFUNCTION(CallInEditor, BlueprintCallable)
 	void BatchRename();
+
+private:
+	static void SaveToLogFile(const FString& Message, const FString& FileName);
 };
