@@ -19,8 +19,6 @@
 #include "EnvironmentQuery/EnvQuery.h"
 #include "Particles/ParticleSystem.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
-#include "BehaviorTree/BehaviorTree.h"
-#include "BehaviorTree/BlackboardData.h"
 #include "Engine/Font.h"
 #include "Engine/FontFace.h"
 #include "Engine/UserDefinedEnum.h"
@@ -163,14 +161,4 @@ protected:
 	void FindAndReplace();
 
 #pragma endregion
-
-private:
-	static FString GetPluginLogDir();
-	static void GenerateFileName(FString& Name);
-	static void SaveToLogFile(const FString& Message, const FString& FileName);
-	static void CreateLogFile(FString& FileName, const FString& Message);
-	static void GetDate(FString& Date);
-	static void UpdateSlowTaskProgress(FScopedSlowTask& SlowTask,
-	                                   const TArray<UObject*>& SelectedAssets,
-	                                   const UObject* CurrentAsset);
 };
