@@ -37,6 +37,12 @@ void URenameUtilityWidget::NativePreConstruct()
 		ComboBox->SetSelectedIndex(0);
 	};
 
+	auto InitPropertyView = [](USinglePropertyView* PropertyView, UObject* Object, const FName& PropertyName)
+	{
+		PropertyView->SetObject(Object);
+		PropertyView->SetPropertyName(PropertyName);
+	};
+
 	if (Button_RenameAssets)
 	{
 		Button_RenameAssets->OnClicked.AddUniqueDynamic(this, &URenameUtilityWidget::BatchRename);
@@ -44,8 +50,7 @@ void URenameUtilityWidget::NativePreConstruct()
 
 	if (PropertyView_NewName)
 	{
-		PropertyView_NewName->SetObject(this);
-		PropertyView_NewName->SetPropertyName("NewName");
+		InitPropertyView(PropertyView_NewName, this, "NewName");
 	}
 
 	if (ComboBox_SuffixRename)
@@ -67,6 +72,26 @@ void URenameUtilityWidget::NativePreConstruct()
 	{
 		FillCombobox(ComboBox_Suffixes);
 	}
+
+	if (Button_FindAndReplace)
+	{
+		Button_FindAndReplace->OnClicked.AddUniqueDynamic(this, &URenameUtilityWidget::FindAndReplace);
+	}
+
+	if (PropertyView_SearchPattern)
+	{
+		InitPropertyView(PropertyView_SearchPattern, this, "SearchPattern");
+	}
+
+	if (PropertyView_ReplacePattern)
+	{
+		InitPropertyView(PropertyView_ReplacePattern, this, "ReplacePattern");
+	}
+
+	if (PropertyView_SearchCase)
+	{
+		InitPropertyView(PropertyView_SearchCase, this, "SearchCase");
+	}
 }
 
 void URenameUtilityWidget::BatchRename()
@@ -87,28 +112,18 @@ void URenameUtilityWidget::BatchRename()
 
 	uint32 Counter = 0;
 
-	FScopedSlowTask RenameSelectedAssets(SelectedAssets.Num(),
-	                                     FText::FromString(RenameMessage));
-	RenameSelectedAssets.MakeDialog();
+	FScopedSlowTask RenameProgress(SelectedAssets.Num(),
+	                               FText::FromString("Renaming assets..."));
+	RenameProgress.MakeDialog();
 
 	FString FileName = "BatchRename";
-	GenerateFileName(FileName);
-	SaveToLogFile("Start batch renaming\n", FileName);
-	UE_LOG(LogRenameUtility, Display, TEXT("Create batch rename log file %s."), *FileName);
+	CreateLogFile(FileName, "Start batch renaming\n");
 
 	for (UObject* Asset : SelectedAssets)
 	{
-		const FString UpdatedMessage = RenameMessage + FString::Printf(
-			TEXT(" %d/%d"),
-			SelectedAssets.IndexOfByKey(Asset),
-			SelectedAssets.Num());
-		RenameSelectedAssets.EnterProgressFrame(1, FText::FromString(UpdatedMessage));
+		UpdateSlowTaskProgress(RenameProgress, SelectedAssets, Asset);
 
-		if (!ensure(Asset))
-		{
-			SaveToLogFile(FString::Printf(TEXT("Can't rename %s"), *Asset->GetName()), FileName);
-			continue;
-		}
+		if (!ensure(Asset)) continue;
 
 		const FString OldName = Asset->GetName();
 		Counter++;
@@ -149,7 +164,7 @@ void URenameUtilityWidget::BatchRename()
 			TEXT("Rename %s to %s in %s"),
 			*OldName,
 			*FinalName,
-			*Asset->GetPathName());
+			*FPaths::GetPath(Asset->GetPathName()));
 
 		UE_LOG(LogRenameUtility, Warning, TEXT("%s"), *LogMessage);
 		SaveToLogFile(LogMessage, FileName);
@@ -167,28 +182,18 @@ void URenameUtilityWidget::AddPrefix()
 	TArray<UObject*> SelectedAssets = UEditorUtilityLibrary::GetSelectedAssets();
 
 	FScopedSlowTask AddPrefixProgress(SelectedAssets.Num(),
-	                                  FText::FromString(AddPrefixMessage));
+	                                  FText::FromString("Adding prefixes..."));
 	AddPrefixProgress.MakeDialog();
 
 	FString FileName = "AddPrefix";
-	GenerateFileName(FileName);
-	SaveToLogFile("Start adding prefixes\n", FileName);
-	UE_LOG(LogRenameUtility, Display, TEXT("Create add prefix log file %s."), *FileName);
+	CreateLogFile(FileName, "Start adding prefixes\n");
 
 	for (UObject* Asset : SelectedAssets)
 	{
-		const FString UpdatedMessage = AddPrefixMessage + FString::Printf(
-			TEXT(" %d/%d"),
-			SelectedAssets.IndexOfByKey(Asset),
-			SelectedAssets.Num());
-		AddPrefixProgress.EnterProgressFrame(1, FText::FromString(UpdatedMessage));
+		UpdateSlowTaskProgress(AddPrefixProgress, SelectedAssets, Asset);
 
-		if (!ensure(Asset))
-		{
-			// TODO Log error
-			continue;
-		}
-
+		if (!ensure(Asset)) continue;
+		
 		const UClass* AssetClass = Asset->GetClass();
 
 		if (!PrefixesMap.Find(AssetClass))
@@ -211,7 +216,7 @@ void URenameUtilityWidget::AddPrefix()
 					*Prefix,
 					*Name,
 					*Asset->GetName(),
-					*Asset->GetPathName()),
+					*FPaths::GetPath(Asset->GetPathName())),
 				FileName);
 		}
 	}
@@ -243,21 +248,15 @@ void URenameUtilityWidget::AddSuffix()
 
 	TArray<UObject*> SelectedAssets = UEditorUtilityLibrary::GetSelectedAssets();
 	FScopedSlowTask AddSuffixProgress(SelectedAssets.Num(),
-	                                  FText::FromString(AddSuffixMessage));
+	                                  FText::FromString("Adding suffixes..."));
 	AddSuffixProgress.MakeDialog();
 
 	FString FileName = "AddSuffix";
-	GenerateFileName(FileName);
-	SaveToLogFile("Start adding suffixes\n", FileName);
-	UE_LOG(LogRenameUtility, Display, TEXT("Create add suffix log file %s."), *FileName);
+	CreateLogFile(FileName, "Start adding suffixes\n");
 
 	for (UObject* Asset : SelectedAssets)
 	{
-		const FString UpdatedMessage = AddSuffixMessage + FString::Printf(
-			TEXT(" %d/%d"),
-			SelectedAssets.IndexOfByKey(Asset),
-			SelectedAssets.Num());
-		AddSuffixProgress.EnterProgressFrame(1, FText::FromString(UpdatedMessage));
+		UpdateSlowTaskProgress(AddSuffixProgress, SelectedAssets, Asset);
 
 		if (!ensure(Asset)) continue;
 
@@ -273,7 +272,7 @@ void URenameUtilityWidget::AddSuffix()
 				*Suffix,
 				*Name,
 				*UpdatedName,
-				*Asset->GetPathName());
+				*FPaths::GetPath(Asset->GetPathName()));
 		};
 
 		if (Name.EndsWith(Suffix)) continue;
@@ -305,6 +304,88 @@ void URenameUtilityWidget::AddSuffix()
 	SaveToLogFile("Finish adding suffixes\n", FileName);
 }
 
+void URenameUtilityWidget::FindAndReplace()
+{
+	if (SearchPattern == "")
+	{
+		// TODO Log error
+		return;
+	}
+
+	if (PrefixesMap.FindKey(SearchPattern))
+	{
+		// TODO Log error
+		return;
+	}
+
+	if (SuffixesArray.Contains(SearchPattern))
+	{
+		// TODO Log error
+		return;
+	}
+
+	if (ReplacePattern.Contains(" "))
+	{
+		// TODO Log error
+		return;
+	}
+
+	TArray<UObject*> SelectedAssets = UEditorUtilityLibrary::GetSelectedAssets();
+
+	FScopedSlowTask FindAndReplaceProgress(SelectedAssets.Num(), FText::FromString("Replacing..."));
+	FindAndReplaceProgress.MakeDialog();
+
+	FString FileName = "FindAndReplace";
+	const FString Message = FString::Printf(
+		TEXT("Start searching %s and replacing with %s"),
+		*SearchPattern,
+		*ReplacePattern);
+	CreateLogFile(FileName, Message);
+	FString LogMessage = "";
+
+	for (UObject* Asset : SelectedAssets)
+	{
+		if (!ensure(Asset)) continue;
+
+		UpdateSlowTaskProgress(FindAndReplaceProgress, SelectedAssets, Asset);
+
+		const FString Name = Asset->GetName();
+
+		if (!Name.Contains(SearchPattern))
+		{
+			LogMessage = FString::Printf(
+				TEXT("Can't find pattern %s in asset %s in %s"),
+				*SearchPattern,
+				*Name,
+				*FPaths::GetPath(Asset->GetPathName()));
+			SaveToLogFile(LogMessage, FileName);
+			UE_LOG(LogRenameUtility, Error, TEXT("%s"), *LogMessage);
+			continue;
+		}
+
+		const FString& UpdatedName = Name.Replace(*SearchPattern, *ReplacePattern, SearchCase);
+		UEditorUtilityLibrary::RenameAsset(Asset, UpdatedName);
+		LogMessage = FString::Printf(
+			TEXT("Replace %s with %s in %s. New name %s. %s"),
+			*SearchPattern,
+			*ReplacePattern,
+			*Name,
+			*UpdatedName,
+			*FPaths::GetPath(Asset->GetPathName()));
+		SaveToLogFile(LogMessage, FileName);
+		UE_LOG(LogRenameUtility, Warning, TEXT("%s"), *Message);
+	}
+
+	SaveToLogFile("", FileName);
+	SaveToLogFile("Finish replacing\n", FileName);
+	UE_LOG(LogRenameUtility, Display, TEXT("Finish replacing"));
+}
+
+FString URenameUtilityWidget::GetPluginLogDir()
+{
+	return FPaths::ProjectLogDir() + "TrickyAutomation/";
+}
+
 void URenameUtilityWidget::GenerateFileName(FString& Name)
 {
 	FString Date = "";
@@ -322,12 +403,23 @@ void URenameUtilityWidget::SaveToLogFile(const FString& Message, const FString& 
 
 	// TODO Add message type SUCCESS/ERROR/WARNING
 	const FString LogFileName = "Log_" + FileName + ".txt";
-	const FString FilePath = FPaths::ProjectDir() + "Saved/Logs/TrickyAutomation/" + LogFileName;
+	const FString FilePath = GetPluginLogDir() + LogFileName;
 	FFileHelper::SaveStringToFile(LogMessage,
 	                              *FilePath,
 	                              FFileHelper::EEncodingOptions::AutoDetect,
 	                              &IFileManager::Get(),
 	                              FILEWRITE_Append);
+}
+
+void URenameUtilityWidget::CreateLogFile(FString& FileName, const FString& Message)
+{
+	GenerateFileName(FileName);
+	SaveToLogFile(Message, FileName);
+	UE_LOG(LogRenameUtility,
+	       Display,
+	       TEXT("Create log file %s in %s."),
+	       *FileName,
+	       *GetPluginLogDir());
 }
 
 void URenameUtilityWidget::GetDate(FString& Date)
@@ -340,4 +432,15 @@ void URenameUtilityWidget::GetDate(FString& Date)
 	                       CurrentTime.GetHour(),
 	                       CurrentTime.GetMinute(),
 	                       CurrentTime.GetSecond());
+}
+
+void URenameUtilityWidget::UpdateSlowTaskProgress(FScopedSlowTask& SlowTask,
+                                                  const TArray<UObject*>& SelectedAssets,
+                                                  const UObject* CurrentAsset)
+{
+	const FString UpdatedMessage = SlowTask.DefaultMessage.ToString() + FString::Printf(
+		TEXT(" %d/%d"),
+		SelectedAssets.IndexOfByKey(CurrentAsset),
+		SelectedAssets.Num());
+	SlowTask.EnterProgressFrame(1, FText::FromString(UpdatedMessage));
 }

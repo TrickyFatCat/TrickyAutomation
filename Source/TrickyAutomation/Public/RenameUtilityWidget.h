@@ -23,6 +23,8 @@
 #include "BehaviorTree/BlackboardData.h"
 #include "Engine/Font.h"
 #include "Engine/FontFace.h"
+#include "Engine/UserDefinedEnum.h"
+#include "Engine/UserDefinedStruct.h"
 #include "RenameUtilityWidget.generated.h"
 
 class UButton;
@@ -44,7 +46,7 @@ public:
 	virtual void NativePreConstruct() override;
 
 #pragma region RenameSelectedAssets
-	
+
 protected:
 	UPROPERTY(meta=(BindWidget))
 	UButton* Button_RenameAssets = nullptr;
@@ -54,15 +56,13 @@ protected:
 
 	UPROPERTY(meta=(BindWidget))
 	UComboBoxString* ComboBox_SuffixRename = nullptr;
-	
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="BatchRename")
 	FString NewName = "";
 
 	UFUNCTION(CallInEditor)
 	void BatchRename();
-	
-private:
-	const FString RenameMessage = "Renaming assets...";
+
 #pragma endregion
 
 #pragma region AddPrefixes
@@ -101,15 +101,14 @@ protected:
 		{UPhysicsAsset::StaticClass(), "PA"},
 		{UFont::StaticClass(), "F"},
 		{UFontFace::StaticClass(), "FF"},
-		{UEnum::StaticClass(), "E"},
-		{UStruct::StaticClass(), "F"}
+		{UUserDefinedEnum::StaticClass(), "E"},
+		{UUserDefinedStruct::StaticClass(), "F"}
 	};
 
 	UFUNCTION(CallInEditor)
 	void AddPrefix();
 
 private:
-	const FString AddPrefixMessage = "Adding prefixes...";
 	bool PrefixesMapIsEmpty() const;
 	static void GeneratePrefix(FString& Prefix);
 
@@ -134,13 +133,44 @@ protected:
 	UFUNCTION(CallInEditor)
 	void AddSuffix();
 
-private:
-	const FString AddSuffixMessage = "Adding suffixes...";
+#pragma endregion
+
+#pragma region FindAndReplacePattern
+
+protected:
+	UPROPERTY(meta=(BindWidget))
+	UButton* Button_FindAndReplace = nullptr;
+
+	UPROPERTY(meta=(BindWidget))
+	USinglePropertyView* PropertyView_SearchPattern = nullptr;
 	
-#pragma endregion 
+	UPROPERTY(meta=(BindWidget))
+	USinglePropertyView* PropertyView_ReplacePattern = nullptr;
+
+	UPROPERTY(meta=(BindWidget))
+	USinglePropertyView* PropertyView_SearchCase = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="FindAndReplace")
+	FString SearchPattern;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="FindAndReplace")
+	FString ReplacePattern;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category="FindAndReplace")
+	TEnumAsByte<ESearchCase::Type> SearchCase = ESearchCase::CaseSensitive;
+
+	UFUNCTION(CallInEditor)
+	void FindAndReplace();
+
+#pragma endregion
 
 private:
+	static FString GetPluginLogDir();
 	static void GenerateFileName(FString& Name);
 	static void SaveToLogFile(const FString& Message, const FString& FileName);
+	static void CreateLogFile(FString& FileName, const FString& Message);
 	static void GetDate(FString& Date);
+	static void UpdateSlowTaskProgress(FScopedSlowTask& SlowTask,
+	                                   const TArray<UObject*>& SelectedAssets,
+	                                   const UObject* CurrentAsset);
 };
