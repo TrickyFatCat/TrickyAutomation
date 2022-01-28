@@ -18,6 +18,8 @@ void URenameUtilityWidget::NativePreConstruct()
 
 	auto FillCombobox = [&](UComboBoxString* ComboBox)
 	{
+		if (!ComboBox) return;
+
 		ComboBox->AddOption("NONE");
 
 		if (SuffixesArray.Num() > 0)
@@ -34,9 +36,11 @@ void URenameUtilityWidget::NativePreConstruct()
 		ComboBox->SetSelectedIndex(0);
 	};
 
-	auto InitPropertyView = [](USinglePropertyView* PropertyView, UObject* Object, const FName& PropertyName)
+	auto InitPropertyView = [&](USinglePropertyView* PropertyView, const FName& PropertyName)
 	{
-		PropertyView->SetObject(Object);
+		if (!PropertyView) return;
+
+		PropertyView->SetObject(this);
 		PropertyView->SetPropertyName(PropertyName);
 	};
 
@@ -45,15 +49,8 @@ void URenameUtilityWidget::NativePreConstruct()
 		Button_RenameAssets->OnClicked.AddUniqueDynamic(this, &URenameUtilityWidget::BatchRename);
 	}
 
-	if (PropertyView_NewName)
-	{
-		InitPropertyView(PropertyView_NewName, this, "NewName");
-	}
-
-	if (ComboBox_SuffixRename)
-	{
-		FillCombobox(ComboBox_SuffixRename);
-	}
+	InitPropertyView(PropertyView_NewName, "NewName");
+	FillCombobox(ComboBox_SuffixRename);
 
 	if (Button_AddPrefix)
 	{
@@ -65,30 +62,16 @@ void URenameUtilityWidget::NativePreConstruct()
 		Button_AddSuffix->OnClicked.AddUniqueDynamic(this, &URenameUtilityWidget::AddSuffix);
 	}
 
-	if (ComboBox_Suffixes)
-	{
-		FillCombobox(ComboBox_Suffixes);
-	}
+	FillCombobox(ComboBox_Suffixes);
 
 	if (Button_FindAndReplace)
 	{
 		Button_FindAndReplace->OnClicked.AddUniqueDynamic(this, &URenameUtilityWidget::FindAndReplace);
 	}
 
-	if (PropertyView_SearchPattern)
-	{
-		InitPropertyView(PropertyView_SearchPattern, this, "SearchPattern");
-	}
-
-	if (PropertyView_ReplacePattern)
-	{
-		InitPropertyView(PropertyView_ReplacePattern, this, "ReplacePattern");
-	}
-
-	if (PropertyView_SearchCase)
-	{
-		InitPropertyView(PropertyView_SearchCase, this, "SearchCase");
-	}
+	InitPropertyView(PropertyView_SearchPattern, "SearchPattern");
+	InitPropertyView(PropertyView_ReplacePattern, "ReplacePattern");
+	InitPropertyView(PropertyView_SearchCase, "SearchCase");
 }
 
 void URenameUtilityWidget::BatchRename()
@@ -251,7 +234,7 @@ void URenameUtilityWidget::AddSuffix()
 	TArray<UObject*> SelectedAssets = UEditorUtilityLibrary::GetSelectedAssets();
 
 	if (!TrickyAutomationHelper::AssetsSelectedInLibrary(SelectedAssets)) return;
-	
+
 	FScopedSlowTask AddSuffixProgress(SelectedAssets.Num(),
 	                                  FText::FromString("Adding suffixes..."));
 	AddSuffixProgress.MakeDialog();
