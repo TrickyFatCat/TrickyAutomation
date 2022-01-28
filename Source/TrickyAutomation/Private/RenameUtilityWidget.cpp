@@ -95,7 +95,7 @@ void URenameUtilityWidget::BatchRename()
 {
 	TArray<UObject*> SelectedAssets = UEditorUtilityLibrary::GetSelectedAssets();
 
-	if (TrickyAutomationHelper::AssetsSelectedInLibrary(SelectedAssets)) return;
+	if (!TrickyAutomationHelper::AssetsSelectedInLibrary(SelectedAssets)) return;
 
 	if (NewName == "" || NewName.Contains(" "))
 	{
@@ -344,7 +344,7 @@ void URenameUtilityWidget::FindAndReplace()
 	{
 		if (!ensure(Asset)) continue;
 
-		TrickyAutomationHelper::UpdateSlowTaskProgress(FindAndReplaceProgress, SelectedAssets, Asset);
+		TrickyAutomationHelper::UpdateSlowTaskProgress<UObject*>(FindAndReplaceProgress, SelectedAssets, Asset);
 
 		const FString Name = Asset->GetName();
 
