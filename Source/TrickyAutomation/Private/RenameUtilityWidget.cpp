@@ -334,7 +334,7 @@ void URenameUtilityWidget::FindAndReplace()
 
 	FString FileName = "FindAndReplace";
 	const FString Message = FString::Printf(
-		TEXT("Start searching %s and replacing with %s"),
+		TEXT("Start searching %s and replacing with %s\n"),
 		*SearchPattern,
 		*ReplacePattern);
 	TrickyAutomationHelper::CreateLogFile(FileName, Message);
