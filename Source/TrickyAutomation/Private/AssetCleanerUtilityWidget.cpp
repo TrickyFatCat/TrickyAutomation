@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Artyom "Tricky Fat Cat" Volkov (tricky.fat.cat@gmail.com)
+// Copyright (c) 2022 Artyom "Tricky Fat Cat" Volkov (tricky.fat.cat@gmail.com)
 
 
 #include "AssetCleanerUtilityWidget.h"
