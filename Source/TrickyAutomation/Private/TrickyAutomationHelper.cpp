@@ -60,17 +60,6 @@ void TrickyAutomationHelper::GetDate(FString& Date)
 	                       CurrentTime.GetMillisecond());
 }
 
-void TrickyAutomationHelper::UpdateSlowTaskProgress(FScopedSlowTask& SlowTask,
-                                                    const TArray<UObject*>& SelectedAssets,
-                                                    const UObject* CurrentAsset)
-{
-	const FString UpdatedMessage = SlowTask.DefaultMessage.ToString() + FString::Printf(
-		TEXT(" %d/%d"),
-		SelectedAssets.IndexOfByKey(CurrentAsset),
-		SelectedAssets.Num());
-	SlowTask.EnterProgressFrame(1, FText::FromString(UpdatedMessage));
-}
-
 void TrickyAutomationHelper::PrintMessageOnScreen(const FString& Message, const FColor& Color)
 {
 	if (!ensure(GEngine)) return;
