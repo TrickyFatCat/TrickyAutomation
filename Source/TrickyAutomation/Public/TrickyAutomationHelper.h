@@ -32,6 +32,7 @@ namespace TrickyAutomationHelper
 
 	static void PrintMessageOnScreen(const FString& Message, const FColor& Color);
 	static bool AssetsSelectedInLibrary(const TArray<UObject*>& SelectedAssets);
+	static void RenameActorInWorld(AActor* Actor, const FString& NewName);
 };
 
 #endif

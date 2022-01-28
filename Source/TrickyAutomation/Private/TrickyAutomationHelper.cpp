@@ -78,3 +78,11 @@ bool TrickyAutomationHelper::AssetsSelectedInLibrary(const TArray<UObject*>& Sel
 
 	return bAreSelected;
 }
+
+void TrickyAutomationHelper::RenameActorInWorld(AActor* Actor, const FString& NewName)
+{
+	if (!Actor) return;
+
+	Actor->Rename(*NewName);
+	Actor->SetActorLabel(*NewName);
+}
