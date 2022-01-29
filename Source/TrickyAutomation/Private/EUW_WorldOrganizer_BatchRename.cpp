@@ -26,7 +26,7 @@ void UEUW_WorldOrganizer_BatchRename::NativePreConstruct()
 
 void UEUW_WorldOrganizer_BatchRename::RenameActors()
 {
-	if (TrickyAutomationHelper::StringIsValid(NewName, "new name")) return;
+	if (!TrickyAutomationHelper::StringIsValid(NewName, "new name")) return;
 	
 	TArray<AActor*> SelectedActors = UEditorLevelLibrary::GetSelectedLevelActors();
 

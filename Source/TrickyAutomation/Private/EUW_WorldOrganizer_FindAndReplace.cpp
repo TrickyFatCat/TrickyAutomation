@@ -33,9 +33,9 @@ void UEUW_WorldOrganizer_FindAndReplace::NativePreConstruct()
 
 void UEUW_WorldOrganizer_FindAndReplace::FindAndReplace()
 {
-	if (TrickyAutomationHelper::StringIsValid(SearchPattern, "search pattern")) return;
+	if (!TrickyAutomationHelper::StringIsValid(SearchPattern, "search pattern")) return;
 
-	if (TrickyAutomationHelper::StringIsValid(ReplacePattern, "replace pattern")) return;
+	if (!TrickyAutomationHelper::StringIsValid(ReplacePattern, "replace pattern")) return;
 
 	TArray<AActor*> WorldActors = bSearchAmongSelected
 		                              ? UEditorLevelLibrary::GetSelectedLevelActors()

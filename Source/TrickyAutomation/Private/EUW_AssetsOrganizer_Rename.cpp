@@ -76,7 +76,7 @@ void UEUW_AssetsOrganizer_Rename::NativePreConstruct()
 
 void UEUW_AssetsOrganizer_Rename::BatchRename()
 {
-	if (TrickyAutomationHelper::StringIsValid(NewName, "new name")) return;
+	if (!TrickyAutomationHelper::StringIsValid(NewName, "new name")) return;
 	
 	TArray<UObject*> SelectedAssets = UEditorUtilityLibrary::GetSelectedAssets();
 
@@ -292,9 +292,9 @@ void UEUW_AssetsOrganizer_Rename::AddSuffix()
 
 void UEUW_AssetsOrganizer_Rename::FindAndReplace()
 {
-	if (TrickyAutomationHelper::StringIsValid(SearchPattern, "search pattern")) return;
+	if (!TrickyAutomationHelper::StringIsValid(SearchPattern, "search pattern")) return;
 
-	if (TrickyAutomationHelper::StringIsValid(ReplacePattern, "replace pattern")) return;
+	if (!TrickyAutomationHelper::StringIsValid(ReplacePattern, "replace pattern")) return;
 	
 	TArray<UObject*> SelectedAssets = UEditorUtilityLibrary::GetSelectedAssets();
 
