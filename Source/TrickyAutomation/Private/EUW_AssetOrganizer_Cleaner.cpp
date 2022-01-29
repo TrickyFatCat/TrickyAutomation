@@ -33,8 +33,13 @@ void UEUW_AssetsOrganizer_Cleaner::DeleteUnusedAssets()
 
 	if (!TrickyAutomationHelper::AssetsSelectedInLibrary(SelectedAssets)) return;
 
+	FScopedSlowTask DeleteProgress(SelectedAssets.Num(), FText::FromString("Checking assets..."));
+	DeleteProgress.MakeDialog();
+
 	for (UObject* Asset : SelectedAssets)
 	{
+		TrickyAutomationHelper::UpdateSlowTaskProgress(DeleteProgress, SelectedAssets, Asset);
+		
 		if (!ensure(Asset)) continue;
 
 		if (UEditorAssetLibrary::FindPackageReferencersForAsset(Asset->GetPathName(), true).Num() <= 0)
@@ -43,6 +48,8 @@ void UEUW_AssetsOrganizer_Cleaner::DeleteUnusedAssets()
 		}
 	}
 
+	DeleteProgress.Visibility = ESlowTaskVisibility::Invisible;
+
 	if (UnusedAssets.Num() == 0)
 	{
 		TrickyAutomationHelper::PrintMessageOnScreen("All assets are in use", FColor::Green);
@@ -50,8 +57,9 @@ void UEUW_AssetsOrganizer_Cleaner::DeleteUnusedAssets()
 	}
 
 	const FString ProgressMessage = bMoveToBinFolder ? "Moving to bin..." : "Deleting assets...";
-	FScopedSlowTask DeleteProgress(UnusedAssets.Num(), FText::FromString(ProgressMessage));
-	DeleteProgress.MakeDialog();
+	DeleteProgress.DefaultMessage = FText::FromString(ProgressMessage);
+	DeleteProgress.TotalAmountOfWork = UnusedAssets.Num();
+	DeleteProgress.CompletedWork = 0;
 
 	FString FileName = "DeleteUnusedAssets";
 	TrickyAutomationHelper::CreateLogFile(FileName, "Start deleting unused assets\n");
