@@ -37,6 +37,8 @@ void UEUW_WorldOrganizer_SelectByName::SelectByName()
 	UEditorLevelLibrary::ClearActorSelectionSet();
 	TArray<AActor*> WorldActors = UEditorLevelLibrary::GetAllLevelActors();
 
+	if (!TrickyAutomationHelper::ActorsSelectedInWorld(WorldActors)) return;
+
 	for (AActor* Actor : WorldActors)
 	{
 		if (!ensure(Actor)) continue;
