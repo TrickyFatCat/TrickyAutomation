@@ -98,3 +98,18 @@ bool TrickyAutomationHelper::ActorsSelectedInWorld(const TArray<AActor*>& Select
 
 	return bSelected;
 }
+
+bool TrickyAutomationHelper::StringIsValid(const FString& String, const FString& PropertyName)
+{
+	const bool bIsEmpty = String == "";
+	const bool bHasInvalidCharacters = String.Contains(" ") || String.Contains("\\") || String.Contains("/");
+	const bool bIsValid = !bIsEmpty || !bHasInvalidCharacters;
+
+	if (bIsValid)
+	{
+		const FString LogMessage = FString::Printf(TEXT("Invalid %s"), *PropertyName);
+		PrintMessageOnScreen(LogMessage, FColor::Red);
+	}
+
+	return bIsValid;
+}

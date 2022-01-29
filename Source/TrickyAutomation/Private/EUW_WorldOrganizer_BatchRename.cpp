@@ -26,21 +26,13 @@ void UEUW_WorldOrganizer_BatchRename::NativePreConstruct()
 
 void UEUW_WorldOrganizer_BatchRename::RenameActors()
 {
+	if (TrickyAutomationHelper::StringIsValid(NewName, "new name")) return;
+	
 	TArray<AActor*> SelectedActors = UEditorLevelLibrary::GetSelectedLevelActors();
-	auto PrintError = [](const FString& ErrorMessage)
-	{
-		TrickyAutomationHelper::PrintMessageOnScreen(ErrorMessage, FColor::Red);
-	};
 
 	if (SelectedActors.Num() == 0)
 	{
-		PrintError("There are no selected actors in the level");
-		return;
-	}
-
-	if (NewName == "" || NewName.Contains(" "))
-	{
-		PrintError("Invalid new name");
+		TrickyAutomationHelper::PrintMessageOnScreen("There are no selected actors in the level", FColor::Red);
 		return;
 	}
 

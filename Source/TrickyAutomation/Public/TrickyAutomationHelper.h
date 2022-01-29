@@ -34,6 +34,7 @@ namespace TrickyAutomationHelper
 	static bool AssetsSelectedInLibrary(const TArray<UObject*>& SelectedAssets);
 	static void RenameActorInWorld(AActor* Actor, const FString& NewName);
 	static bool ActorsSelectedInWorld(const TArray<AActor*>& SelectedActors);
+	static bool StringIsValid(const FString& String, const FString& PropertyName);
 };
 
 #endif

@@ -76,15 +76,11 @@ void UEUW_AssetsOrganizer_Rename::NativePreConstruct()
 
 void UEUW_AssetsOrganizer_Rename::BatchRename()
 {
+	if (TrickyAutomationHelper::StringIsValid(NewName, "new name")) return;
+	
 	TArray<UObject*> SelectedAssets = UEditorUtilityLibrary::GetSelectedAssets();
 
 	if (!TrickyAutomationHelper::AssetsSelectedInLibrary(SelectedAssets)) return;
-
-	if (NewName == "" || NewName.Contains(" "))
-	{
-		TrickyAutomationHelper::PrintMessageOnScreen("Invalid new name", FColor::Red);
-		return;
-	}
 
 	FScopedSlowTask RenameProgress(SelectedAssets.Num(),
 	                               FText::FromString("Renaming assets..."));
@@ -296,18 +292,10 @@ void UEUW_AssetsOrganizer_Rename::AddSuffix()
 
 void UEUW_AssetsOrganizer_Rename::FindAndReplace()
 {
-	if (SearchPattern == "" || SearchPattern == " " || SearchPattern.Contains(" "))
-	{
-		TrickyAutomationHelper::PrintMessageOnScreen("Invalid search pattern", FColor::Red);
-		return;
-	}
+	if (TrickyAutomationHelper::StringIsValid(SearchPattern, "search pattern")) return;
 
-	if (ReplacePattern.Contains(" ") || ReplacePattern == SearchPattern)
-	{
-		TrickyAutomationHelper::PrintMessageOnScreen("Invalid replace pattern", FColor::Red);
-		return;
-	}
-
+	if (TrickyAutomationHelper::StringIsValid(ReplacePattern, "replace pattern")) return;
+	
 	TArray<UObject*> SelectedAssets = UEditorUtilityLibrary::GetSelectedAssets();
 
 	if (!TrickyAutomationHelper::AssetsSelectedInLibrary(SelectedAssets)) return;
