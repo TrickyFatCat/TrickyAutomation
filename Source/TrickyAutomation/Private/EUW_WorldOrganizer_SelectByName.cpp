@@ -35,7 +35,6 @@ void UEUW_WorldOrganizer_SelectByName::SelectByName()
 	if (!TrickyAutomationHelper::StringIsValid(SearchPattern, "search pattern")) return;
 
 	UEditorLevelLibrary::ClearActorSelectionSet();
-	TArray<AActor*> SelectedActors = TArray<AActor*>();
 	TArray<AActor*> WorldActors = UEditorLevelLibrary::GetAllLevelActors();
 
 	for (AActor* Actor : WorldActors)
