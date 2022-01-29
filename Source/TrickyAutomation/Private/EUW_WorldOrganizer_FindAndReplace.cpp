@@ -1,14 +1,14 @@
 // Copyright (c) 2022 Artyom "Tricky Fat Cat" Volkov (tricky.fat.cat@gmail.com)
 
 
-#include "UtilityWidget_WorldOrganizer_FindAndReplace.h"
+#include "EUW_WorldOrganizer_FindAndReplace.h"
 
 #include "EditorLevelLibrary.h"
 #include "TrickyAutomationHelper.h"
 #include "Components/Button.h"
 #include "Components/SinglePropertyView.h"
 
-void UUtilityWidget_WorldOrganizer_FindAndReplace::NativePreConstruct()
+void UEUW_WorldOrganizer_FindAndReplace::NativePreConstruct()
 {
 	Super::NativePreConstruct();
 
@@ -22,7 +22,7 @@ void UUtilityWidget_WorldOrganizer_FindAndReplace::NativePreConstruct()
 
 	if (Button_FindAndReplace)
 	{
-		Button_FindAndReplace->OnClicked.AddUniqueDynamic(this, &UUtilityWidget_WorldOrganizer_FindAndReplace::FindAndReplace);
+		Button_FindAndReplace->OnClicked.AddUniqueDynamic(this, &UEUW_WorldOrganizer_FindAndReplace::FindAndReplace);
 	}
 
 	InitPropertyView(PropertyView_SearchPattern, "SearchPattern");
@@ -31,7 +31,7 @@ void UUtilityWidget_WorldOrganizer_FindAndReplace::NativePreConstruct()
 	InitPropertyView(PropertyView_SearchSelected, "bSearchAmongSelected");
 }
 
-void UUtilityWidget_WorldOrganizer_FindAndReplace::FindAndReplace()
+void UEUW_WorldOrganizer_FindAndReplace::FindAndReplace()
 {
 	auto PrintError = [](const FString& LogMessage)
 	{

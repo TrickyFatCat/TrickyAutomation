@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "EditorUtilityWidget.h"
-#include "UtilityWidget_WorldOrganizer_FindAndReplace.generated.h"
+#include "EUW_WorldOrganizer_FindAndReplace.generated.h"
 
 class UButton;
 class USinglePropertyView;
@@ -13,7 +13,7 @@ class USinglePropertyView;
  * 
  */
 UCLASS()
-class TRICKYAUTOMATION_API UUtilityWidget_WorldOrganizer_FindAndReplace : public UEditorUtilityWidget
+class TRICKYAUTOMATION_API UEUW_WorldOrganizer_FindAndReplace : public UEditorUtilityWidget
 {
 	GENERATED_BODY()
 

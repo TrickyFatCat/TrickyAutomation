@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "EditorUtilityWidget.h"
-#include "AssetCleanerUtilityWidget.generated.h"
+#include "EUW_AsstLibrary_Cleaner.generated.h"
 
 class UButton;
 class USinglePropertyView;
@@ -13,7 +13,7 @@ class USinglePropertyView;
  * 
  */
 UCLASS()
-class TRICKYAUTOMATION_API UAssetCleanerUtilityWidget : public UEditorUtilityWidget
+class TRICKYAUTOMATION_API UEUW_AsstLibrary_Cleaner : public UEditorUtilityWidget
 {
 	GENERATED_BODY()
 public:
