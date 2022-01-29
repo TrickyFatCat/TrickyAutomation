@@ -33,14 +33,9 @@ void UEUW_WorldOrganizer_FindAndReplace::NativePreConstruct()
 
 void UEUW_WorldOrganizer_FindAndReplace::FindAndReplace()
 {
-	auto PrintError = [](const FString& LogMessage)
-	{
-		TrickyAutomationHelper::PrintMessageOnScreen(LogMessage, FColor::Red);
-	};
-
 	if (SearchPattern == "" || SearchPattern.Contains(" ") || SearchPattern == ReplacePattern)
 	{
-		PrintError("Invalid search pattern");
+		TrickyAutomationHelper::PrintMessageOnScreen("Invalid search pattern", FColor::Red);
 		return;
 	}
 
@@ -48,11 +43,7 @@ void UEUW_WorldOrganizer_FindAndReplace::FindAndReplace()
 		                              ? UEditorLevelLibrary::GetSelectedLevelActors()
 		                              : UEditorLevelLibrary::GetAllLevelActors();
 
-	if (bSearchAmongSelected && WorldActors.Num() == 0)
-	{
-		PrintError("No assets selected when bSearchAmongSelected == true");
-		return;
-	}
+	if (bSearchAmongSelected && !TrickyAutomationHelper::ActorsSelectedInWorld(WorldActors)) return;
 
 	for (AActor* Actor : WorldActors)
 	{

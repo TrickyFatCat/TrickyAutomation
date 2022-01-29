@@ -86,3 +86,15 @@ void TrickyAutomationHelper::RenameActorInWorld(AActor* Actor, const FString& Ne
 	Actor->Rename(*NewName);
 	Actor->SetActorLabel(*NewName);
 }
+
+bool TrickyAutomationHelper::ActorsSelectedInWorld(const TArray<AActor*>& SelectedActors)
+{
+	const bool bSelected = SelectedActors.Num() > 0;
+
+	if (!bSelected)
+	{
+		PrintMessageOnScreen("No actors are selected in the level", FColor::Red);
+	}
+
+	return bSelected;
+}
