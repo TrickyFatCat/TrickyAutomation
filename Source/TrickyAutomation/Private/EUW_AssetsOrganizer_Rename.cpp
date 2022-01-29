@@ -1,7 +1,7 @@
 // Copyright (c) 2022 Artyom "Tricky Fat Cat" Volkov (tricky.fat.cat@gmail.com)
 
 
-#include "EUW_AssetLibrary_Rename.h"
+#include "EUW_AssetsOrganizer_Rename.h"
 
 #include "EditorUtilityLibrary.h"
 #include "Components/Button.h"
@@ -12,7 +12,7 @@
 #include "TrickyAutomationHelper.h"
 
 
-void UEUW_AssetLibrary_Rename::NativePreConstruct()
+void UEUW_AssetsOrganizer_Rename::NativePreConstruct()
 {
 	Super::NativePreConstruct();
 
@@ -46,7 +46,7 @@ void UEUW_AssetLibrary_Rename::NativePreConstruct()
 
 	if (Button_RenameAssets)
 	{
-		Button_RenameAssets->OnClicked.AddUniqueDynamic(this, &UEUW_AssetLibrary_Rename::BatchRename);
+		Button_RenameAssets->OnClicked.AddUniqueDynamic(this, &UEUW_AssetsOrganizer_Rename::BatchRename);
 	}
 
 	InitPropertyView(PropertyView_NewName, "NewName");
@@ -54,19 +54,19 @@ void UEUW_AssetLibrary_Rename::NativePreConstruct()
 
 	if (Button_AddPrefix)
 	{
-		Button_AddPrefix->OnClicked.AddUniqueDynamic(this, &UEUW_AssetLibrary_Rename::AddPrefix);
+		Button_AddPrefix->OnClicked.AddUniqueDynamic(this, &UEUW_AssetsOrganizer_Rename::AddPrefix);
 	}
 
 	if (Button_AddSuffix)
 	{
-		Button_AddSuffix->OnClicked.AddUniqueDynamic(this, &UEUW_AssetLibrary_Rename::AddSuffix);
+		Button_AddSuffix->OnClicked.AddUniqueDynamic(this, &UEUW_AssetsOrganizer_Rename::AddSuffix);
 	}
 
 	FillCombobox(ComboBox_Suffixes);
 
 	if (Button_FindAndReplace)
 	{
-		Button_FindAndReplace->OnClicked.AddUniqueDynamic(this, &UEUW_AssetLibrary_Rename::FindAndReplace);
+		Button_FindAndReplace->OnClicked.AddUniqueDynamic(this, &UEUW_AssetsOrganizer_Rename::FindAndReplace);
 	}
 
 	InitPropertyView(PropertyView_SearchPattern, "SearchPattern");
@@ -74,7 +74,7 @@ void UEUW_AssetLibrary_Rename::NativePreConstruct()
 	InitPropertyView(PropertyView_SearchCase, "SearchCase");
 }
 
-void UEUW_AssetLibrary_Rename::BatchRename()
+void UEUW_AssetsOrganizer_Rename::BatchRename()
 {
 	TArray<UObject*> SelectedAssets = UEditorUtilityLibrary::GetSelectedAssets();
 
@@ -152,7 +152,7 @@ void UEUW_AssetLibrary_Rename::BatchRename()
 	NewName = "";
 }
 
-void UEUW_AssetLibrary_Rename::AddPrefix()
+void UEUW_AssetsOrganizer_Rename::AddPrefix()
 {
 	if (PrefixesMapIsEmpty()) return;
 
@@ -206,7 +206,7 @@ void UEUW_AssetLibrary_Rename::AddPrefix()
 	TrickyAutomationHelper::SaveToLogFile("Finish adding prefixes", FileName);
 }
 
-bool UEUW_AssetLibrary_Rename::PrefixesMapIsEmpty() const
+bool UEUW_AssetsOrganizer_Rename::PrefixesMapIsEmpty() const
 {
 	if (PrefixesMap.Num() == 0)
 	{
@@ -216,14 +216,14 @@ bool UEUW_AssetLibrary_Rename::PrefixesMapIsEmpty() const
 	return PrefixesMap.Num() == 0;
 }
 
-void UEUW_AssetLibrary_Rename::GeneratePrefix(FString& Prefix)
+void UEUW_AssetsOrganizer_Rename::GeneratePrefix(FString& Prefix)
 {
 	if (Prefix.Contains("_")) return;
 
 	Prefix += "_";
 }
 
-void UEUW_AssetLibrary_Rename::AddSuffix()
+void UEUW_AssetsOrganizer_Rename::AddSuffix()
 {
 	if (ComboBox_Suffixes->GetSelectedIndex() == 0 || SuffixesArray.Num() == 0)
 	{
@@ -294,7 +294,7 @@ void UEUW_AssetLibrary_Rename::AddSuffix()
 	TrickyAutomationHelper::SaveToLogFile("Finish adding suffixes\n", FileName);
 }
 
-void UEUW_AssetLibrary_Rename::FindAndReplace()
+void UEUW_AssetsOrganizer_Rename::FindAndReplace()
 {
 	if (SearchPattern == "" || SearchPattern == " " || SearchPattern.Contains(" "))
 	{

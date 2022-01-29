@@ -1,7 +1,7 @@
 // Copyright (c) 2022 Artyom "Tricky Fat Cat" Volkov (tricky.fat.cat@gmail.com)
 
 
-#include "EUW_AsstLibrary_Cleaner.h"
+#include "EUW_AssetOrganizer_Cleaner.h"
 
 #include "EditorUtilityLibrary.h"
 #include "EditorAssetLibrary.h"
@@ -10,13 +10,13 @@
 #include "TrickyAutomationHelper.h"
 #include "Misc/ScopedSlowTask.h"
 
-void UEUW_AsstLibrary_Cleaner::NativePreConstruct()
+void UEUW_AssetOrganizer_Cleaner::NativePreConstruct()
 {
 	Super::NativePreConstruct();
 
 	if (Button_DeleteAssets)
 	{
-		Button_DeleteAssets->OnClicked.AddUniqueDynamic(this, &UEUW_AsstLibrary_Cleaner::DeleteUnusedAssets);
+		Button_DeleteAssets->OnClicked.AddUniqueDynamic(this, &UEUW_AssetOrganizer_Cleaner::DeleteUnusedAssets);
 	}
 
 	if (PropertyView_MoveToBin)
@@ -26,7 +26,7 @@ void UEUW_AsstLibrary_Cleaner::NativePreConstruct()
 	}
 }
 
-void UEUW_AsstLibrary_Cleaner::DeleteUnusedAssets()
+void UEUW_AssetOrganizer_Cleaner::DeleteUnusedAssets()
 {
 	TArray<UObject*> SelectedAssets = UEditorUtilityLibrary::GetSelectedAssets();
 	TArray<UObject*> UnusedAssets = TArray<UObject*>();

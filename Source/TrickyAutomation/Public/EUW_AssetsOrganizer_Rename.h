@@ -23,7 +23,7 @@
 #include "Engine/FontFace.h"
 #include "Engine/UserDefinedEnum.h"
 #include "Engine/UserDefinedStruct.h"
-#include "EUW_AssetLibrary_Rename.generated.h"
+#include "EUW_AssetsOrganizer_Rename.generated.h"
 
 class UButton;
 class USinglePropertyView;
@@ -36,7 +36,7 @@ DECLARE_LOG_CATEGORY_CLASS(LogRenameUtility, Display, All)
  * 
  */
 UCLASS()
-class TRICKYAUTOMATION_API UEUW_AssetLibrary_Rename : public UEditorUtilityWidget
+class TRICKYAUTOMATION_API UEUW_AssetsOrganizer_Rename : public UEditorUtilityWidget
 {
 	GENERATED_BODY()
 
