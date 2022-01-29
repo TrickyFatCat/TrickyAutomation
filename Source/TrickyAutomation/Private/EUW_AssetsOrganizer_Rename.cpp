@@ -86,8 +86,6 @@ void UEUW_AssetsOrganizer_Rename::BatchRename()
 		return;
 	}
 
-	uint32 Counter = 0;
-
 	FScopedSlowTask RenameProgress(SelectedAssets.Num(),
 	                               FText::FromString("Renaming assets..."));
 	RenameProgress.MakeDialog();
@@ -102,8 +100,10 @@ void UEUW_AssetsOrganizer_Rename::BatchRename()
 		if (!ensure(Asset)) continue;
 
 		const FString OldName = Asset->GetName();
-		Counter++;
-		FString FinalName = NewName + FString::Printf(TEXT("_%d"), Counter);
+		const FString Index = FString::FromInt(SelectedAssets.IndexOfByKey(Asset));
+		FString FinalName = NewName.Contains("#")
+			                    ? NewName.Replace(TEXT("#"), *Index)
+			                    : FString::Printf(TEXT("%s_%s"), *NewName, *Index);
 
 		if (!PrefixesMapIsEmpty())
 		{
