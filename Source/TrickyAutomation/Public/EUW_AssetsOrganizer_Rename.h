@@ -7,6 +7,8 @@
 #include "WidgetBlueprint.h"
 #include "Animation/AimOffsetBlendSpace.h"
 #include "Animation/AimOffsetBlendSpace1D.h"
+#include "Animation/AnimBlueprint.h"
+#include "Animation/AnimMontage.h"
 #include "Animation/BlendSpace.h"
 #include "Animation/BlendSpace1D.h"
 #include "Engine/Blueprint.h"
@@ -23,6 +25,7 @@
 #include "Engine/FontFace.h"
 #include "Engine/UserDefinedEnum.h"
 #include "Engine/UserDefinedStruct.h"
+#include "Materials/MaterialInstance.h"
 #include "EUW_AssetsOrganizer_Rename.generated.h"
 
 class UButton;
