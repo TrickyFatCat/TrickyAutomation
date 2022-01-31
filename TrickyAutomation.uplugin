@@ -17,8 +17,8 @@
 	"Modules": [
 		{
 			"Name": "TrickyAutomation",
-			"Type": "Runtime",
-			"LoadingPhase": "Default"
+			"Type": "Editor",
+			"LoadingPhase": "PostEngineInit"
 		}
 	],
 	"Plugins": [

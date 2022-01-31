@@ -44,7 +44,8 @@ public class TrickyAutomation : ModuleRules
 				"EditorScriptingUtilities",
 				"UMGEditor",
 				"AIModule",
-				"PhysicsCore"
+				"PhysicsCore",
+				"UnrealEd"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);
