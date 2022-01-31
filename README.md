@@ -4,9 +4,9 @@ A tiny plugin for automation of some routine tasks in UE4.
 
 ## Installation
 
-1. Create Plugin folder in your project directory;
+1. Create Plugins folder in your project directory;
 
-2. Download and unzip archive with the plugin;
+2. Download and unzip archive in this folder. You should get such a path to a plugin `Plugins/TrickyAutomation`;
 
 3. Alternatively you can clone this repository into the pluging directory;
 
