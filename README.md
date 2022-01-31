@@ -26,6 +26,8 @@ A tiny plugin for automation of some routine tasks in UE4.
 
 ### Asset Organizer
 
+![Assets organizer](Images/img_assetorganizer.png)
+
 With this widget you can:
 
 1. Rename chosen assets. This action also adds Prefixes to the name automatically;
@@ -41,6 +43,8 @@ With this widget you can:
 You can change prefixes and suffixes inside the widget `EUW_AO_Rename` which you can find in the folder `TrickyAutomation/BaseWidgets/AssetOrginizer`.
 
 ### World Organizer
+
+![World organizer](Images/img_worldorganizer.png)
 
 With this widget you can:
 
